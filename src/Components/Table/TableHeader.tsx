@@ -1,14 +1,17 @@
 import {
+  Box,
+  Flex,
   IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Portal,
+  Text,
 } from "@chakra-ui/react";
 import { flexRender, Header } from "@tanstack/react-table";
 import { Draggable } from "react-beautiful-dnd";
-import { FaEllipsisVertical } from "react-icons/fa6";
+import { FaArrowDown, FaArrowUp, FaEllipsisVertical } from "react-icons/fa6";
 import { User } from "../../types";
 
 interface TableHeaderProps {
@@ -17,12 +20,15 @@ interface TableHeaderProps {
 }
 
 export const TableHeader = ({ header, index }: TableHeaderProps) => {
+  const isPinned = header.column.getIsPinned();
+  const isSorted = header.column.getIsSorted();
+
   return (
     <Draggable
       draggableId={header.id}
       key={header.id}
       index={index}
-      isDragDisabled={!!header.column.getIsPinned()}
+      isDragDisabled={!!isPinned}
     >
       {/*@ts-ignore */}
       {(provided, snapshot) => (
@@ -39,7 +45,7 @@ export const TableHeader = ({ header, index }: TableHeaderProps) => {
             ...(snapshot.isDragging && {
               background: "gray",
             }),
-            ...(header.column.getIsPinned() && {
+            ...(isPinned && {
               background: "rgb(97 6 79)",
             }),
           }}
@@ -61,33 +67,56 @@ export const TableHeader = ({ header, index }: TableHeaderProps) => {
             />
             <Portal>
               <MenuList color="black">
-                {header.column.getIsPinned() !== "right" && (
-                  <MenuItem onClick={() => header.column.pin("right")}>
+                {isPinned !== "right" && (
+                  <MenuItem
+                    onClick={() => header.column.pin("right")}
+                    fontSize="sm"
+                  >
                     Pin to Right
                   </MenuItem>
                 )}
-                {header.column.getIsPinned() !== "left" && (
-                  <MenuItem onClick={() => header.column.pin("left")}>
+                {isPinned !== "left" && (
+                  <MenuItem
+                    onClick={() => header.column.pin("left")}
+                    fontSize="sm"
+                  >
                     Pin to Left
                   </MenuItem>
                 )}
-                {header.column.getIsPinned() && (
-                  <MenuItem onClick={() => header.column.pin(false)}>
+                {isPinned && (
+                  <MenuItem
+                    onClick={() => header.column.pin(false)}
+                    fontSize="sm"
+                  >
                     Unpin
                   </MenuItem>
                 )}
 
-                <MenuItem onClick={header.column.getToggleSortingHandler()}>
-                  {header.column.getIsSorted() === "desc"
-                    ? "Sort Asc"
-                    : "Sort Desc"}
+                <MenuItem
+                  onClick={header.column.getToggleSortingHandler()}
+                  fontSize="sm"
+                >
+                  {isSorted === "desc" ? "Sort Asc" : "Sort Desc"}
                 </MenuItem>
               </MenuList>
             </Portal>
           </Menu>
-          {header.isPlaceholder
-            ? null
-            : flexRender(header.column.columnDef.header, header.getContext())}
+          <Flex justifyContent={"center"} gap={1} alignItems="center">
+            <Text fontSize="s">
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+            </Text>
+            {isSorted && (
+              <Box>
+                {isSorted === "asc" && <FaArrowDown />}
+                {isSorted === "desc" && <FaArrowUp />}
+              </Box>
+            )}
+          </Flex>
         </th>
       )}
     </Draggable>

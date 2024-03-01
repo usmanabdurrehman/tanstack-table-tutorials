@@ -80,6 +80,18 @@ export const useColumns = () => {
         header: "Birth date",
         cell: (info) => moment(info.getValue()).format("MM/DD/YYYY"),
       }),
+      columnHelper.accessor("age", {
+        id: "age",
+        header: "Age",
+        footer: ({ table }) =>
+          table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) => total + Number(row.getValue("age")),
+              0
+            ),
+        size: DISPLAY_COLUMN_SIZE,
+      }),
       columnHelper.display({
         id: "delete",
         header: () => (

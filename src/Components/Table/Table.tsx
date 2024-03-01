@@ -56,6 +56,7 @@ export default function Table() {
     state: {},
   });
 
+  // Column Visibility
   const showTable = Object.values(table.getState().columnVisibility).filter(
     (isVisible) => isVisible
   ).length;
@@ -149,7 +150,7 @@ export default function Table() {
               })}
             </tbody>
 
-            {false && (
+            {true && (
               <tfoot>
                 {table.getFooterGroups().map((footerGroup) => (
                   <tr key={footerGroup.id}>

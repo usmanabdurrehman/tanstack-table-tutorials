@@ -7,4 +7,5 @@ export type User = {
   birthDate: Date;
   registeredAt: Date;
   id: number;
+  age: number;
 };

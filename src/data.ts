@@ -13,6 +13,7 @@ export function createRandomUser() {
     password: faker.internet.password(),
     birthDate: faker.date.birthdate(),
     registeredAt: faker.date.past(),
+    age: faker.number.int({ max: 100, min: 1 }),
   };
 }
 
