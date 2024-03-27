@@ -20,7 +20,10 @@ interface ColumnSelector {
   columnIds: string[];
 }
 
-export const ColumnSelector = ({ table, columnIds }: ColumnSelector) => {
+export const ColumnVisibilitySelector = ({
+  table,
+  columnIds,
+}: ColumnSelector) => {
   const columnVisibilityCheckboxState = Object.entries(
     table.getState().columnVisibility
   )
@@ -40,14 +43,14 @@ export const ColumnSelector = ({ table, columnIds }: ColumnSelector) => {
       <PopoverContent>
         <PopoverBody>
           <RadioGroup
-            onChange={(value) =>
+            onChange={(value) => {
               table.setColumnVisibility(
                 columnIds.reduce((acc: { [id: string]: boolean }, val) => {
                   acc[val] = value === "all";
                   return acc;
                 }, {})
-              )
-            }
+              );
+            }}
             mb={2}
             defaultValue="all"
           >
@@ -56,6 +59,7 @@ export const ColumnSelector = ({ table, columnIds }: ColumnSelector) => {
               <Radio value="none">Show None</Radio>
             </Stack>
           </RadioGroup>
+
           <CheckboxGroup
             value={columnVisibilityCheckboxState}
             colorScheme="green"

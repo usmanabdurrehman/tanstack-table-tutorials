@@ -6,49 +6,49 @@ import { FaMinus, FaPlus, FaTrash } from "react-icons/fa6";
 import { USERS } from "../../data";
 import { User } from "../../types";
 
-const columnHelper = createColumnHelper<User>();
-
 const DISPLAY_COLUMN_SIZE = 100;
 
-export const useColumns = () => {
+const columnHelper = createColumnHelper<User>();
+
+export const useTableData = () => {
   const [data, setData] = useState(USERS);
 
   const columns = useMemo(
     () => [
       columnHelper.display({
         id: "selection",
-        header: ({ table }) => {
-          return (
+        header: ({ table }) => (
+          <Flex justifyContent={"center"} alignItems="center">
             <Checkbox
               isChecked={table.getIsAllRowsSelected()}
               isIndeterminate={table.getIsSomeRowsSelected()}
               onChange={table.getToggleAllRowsSelectedHandler()}
             />
-          );
-        },
-        cell: ({ row }) => {
-          return (
+          </Flex>
+        ),
+        cell: ({ row }) => (
+          <Flex justifyContent={"center"} alignItems="center">
             <Checkbox
-              isChecked={row.getIsSelected()}
-              isIndeterminate={row.getIsSomeSelected()}
               onChange={row.getToggleSelectedHandler()}
+              isChecked={row.getIsSelected()}
             />
-          );
-        },
+          </Flex>
+        ),
         size: DISPLAY_COLUMN_SIZE,
       }),
       columnHelper.display({
-        id: "expander",
-        cell: ({ row }) => {
-          return row.getCanExpand() ? (
-            <IconButton
-              aria-label="Expand Row"
-              icon={row.getIsExpanded() ? <FaMinus /> : <FaPlus />}
-              onClick={row.getToggleExpandedHandler()}
-              size="xs"
-            />
-          ) : null;
-        },
+        id: "expand",
+        cell: ({ row }) =>
+          row.getCanExpand() ? (
+            <Flex justifyContent={"center"} alignItems="center">
+              <IconButton
+                aria-label="Expand row"
+                icon={row.getIsExpanded() ? <FaMinus /> : <FaPlus />}
+                size="xs"
+                onClick={row.getToggleExpandedHandler()}
+              />
+            </Flex>
+          ) : null,
         size: DISPLAY_COLUMN_SIZE,
       }),
       columnHelper.accessor("id", {
@@ -59,61 +59,60 @@ export const useColumns = () => {
       columnHelper.accessor("avatar", {
         id: "avatar",
         header: "Avatar",
-        cell: (info) => (
+        cell: ({ getValue }) => (
           <Flex alignItems={"center"} justifyContent="center">
             <Image
-              src={info.getValue()}
-              height={"30px"}
+              src={getValue()}
               width="30px"
-              borderRadius="50%"
+              height="30px"
+              borderRadius={"50%"}
             />
           </Flex>
         ),
-        size: 120,
+        size: 140,
       }),
       columnHelper.accessor("name", {
         id: "name",
         header: "Name",
       }),
+
       columnHelper.accessor("birthDate", {
         id: "birthDate",
-        header: "Birth date",
-        cell: (info) => moment(info.getValue()).format("MM/DD/YYYY"),
+        header: "Birth Date",
+        cell: ({ getValue }) => moment(getValue()).format("DD/MM/YYYY"),
       }),
       columnHelper.accessor("age", {
         id: "age",
         header: "Age",
-        footer: ({ table }) =>
-          table
-            .getFilteredRowModel()
-            .rows.reduce(
-              (total, row) => total + Number(row.getValue("age")),
-              0
-            ),
         size: DISPLAY_COLUMN_SIZE,
+        footer: ({ table }) =>
+          table.getFilteredRowModel().rows.reduce((acc, val) => {
+            acc += Number(val.getValue("age"));
+            return acc;
+          }, 0),
       }),
       columnHelper.display({
         id: "delete",
         header: () => (
-          <Flex justifyContent={"center"}>
+          <Flex justifyContent={"center"} alignItems="center">
             <FaTrash />
           </Flex>
         ),
-        cell: ({ row }) => {
-          return (
+        cell: ({ row }) => (
+          <Flex justifyContent={"center"} alignItems="center">
             <IconButton
-              aria-label="Delete User"
+              aria-label="Delete row"
               icon={<FaTrash />}
+              colorScheme="red"
               onClick={() =>
                 setData((prevData) =>
                   prevData.filter((user) => user.id !== row.original.id)
                 )
               }
               size="xs"
-              colorScheme="red"
             />
-          );
-        },
+          </Flex>
+        ),
         size: DISPLAY_COLUMN_SIZE,
       }),
     ],
@@ -122,17 +121,15 @@ export const useColumns = () => {
 
   const columnIds = useMemo(
     () => columns.map((column) => column.id) as string[],
-    [columns]
+    []
   );
 
-  const initialColumnVisibility = useMemo(
-    () =>
-      columnIds.reduce((acc: { [id: string]: boolean }, val) => {
-        acc[val] = true;
-        return acc;
-      }, {}),
-    [columnIds]
-  );
+  const initialColumnVisibility = useMemo(() => {
+    return columnIds.reduce((acc: { [id: string]: boolean }, val) => {
+      acc[val] = true;
+      return acc;
+    }, {});
+  }, []);
 
-  return { columnIds, columns, initialColumnVisibility, data };
+  return { columns, data, initialColumnVisibility, columnIds };
 };

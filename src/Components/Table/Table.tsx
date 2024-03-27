@@ -8,73 +8,56 @@ import {
 } from "@tanstack/react-table";
 import "./index.css";
 import { User } from "../../types";
-import { Box, Flex, Input } from "@chakra-ui/react";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { Box, Code, Flex, Input } from "@chakra-ui/react";
 
-import { ColumnSelector } from "./ColumnSelector";
-import { TablePagination } from "./TablePagination";
-import { RowDetailView } from "./RowDetailView";
+import { useTableData } from "./useTableData";
 import { TableHeader } from "./TableHeader";
 import { fuzzyFilter, reorder } from "./Table.utils";
-import { useColumns } from "./Table.columns";
+import Pagination from "./Pagination";
+import RowDetailView from "./RowDetailView";
+import { ColumnVisibilitySelector } from "./ColumnVisibilitySelector";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 
 export default function Table() {
-  const { columnIds, columns, initialColumnVisibility, data } = useColumns();
+  const { columns, data, initialColumnVisibility, columnIds } = useTableData();
 
   const table = useReactTable<User>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
 
-    // Selection
-    enableRowSelection: true,
-
-    // Sub Components/Detail
-    getRowCanExpand: () => true,
-
-    // Fuzzy Search/Filter
+    getFilteredRowModel: getFilteredRowModel(),
     filterFns: {
       fuzzy: fuzzyFilter,
     },
     globalFilterFn: fuzzyFilter,
-    getFilteredRowModel: getFilteredRowModel(),
 
-    // Pagination
     getPaginationRowModel: getPaginationRowModel(),
 
-    // Sorting
-    getSortedRowModel: getSortedRowModel(),
+    enableRowSelection: true,
+    getRowCanExpand: () => true,
 
     initialState: {
-      // Column Visibility
       columnVisibility: initialColumnVisibility,
-
-      // Column Order
       columnOrder: columnIds,
     },
-    // Controlled tutorial
-    state: {},
   });
 
-  // Column Visibility
-  const showTable = Object.values(table.getState().columnVisibility).filter(
-    (isVisible) => isVisible
-  ).length;
-
   return (
-    <Flex height="98vh" direction={"column"} gap={2} p={2}>
-      <Flex alignItems={"center"}>
-        <ColumnSelector table={table} columnIds={columnIds} />
-        <Input
-          ml={2}
-          onChange={(e) => table.setGlobalFilter(e.target.value)}
-          width="300px"
-          placeholder="Search..."
-        />
-      </Flex>
+    <Flex width="100vw">
+      <Flex height="98vh" direction={"column"} gap={2} p={2} grow="1">
+        <Flex alignItems={"center"}>
+          <ColumnVisibilitySelector table={table} columnIds={columnIds} />
+          <Input
+            ml={2}
+            onChange={(e) => table.setGlobalFilter(e.target.value)}
+            width="300px"
+            placeholder="Search..."
+          />
+        </Flex>
 
-      <Box flex="1" overflow="auto">
-        {!!showTable && (
+        <Box flex="1" overflow="auto">
           <table style={{ overflow: "auto" }}>
             <DragDropContext
               onDragEnd={({ destination, source }) => {
@@ -150,31 +133,32 @@ export default function Table() {
               })}
             </tbody>
 
-            {true && (
-              <tfoot>
-                {table.getFooterGroups().map((footerGroup) => (
-                  <tr key={footerGroup.id}>
-                    {footerGroup.headers.map((header) => (
-                      <td key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.footer,
-                              header.getContext()
-                            )}
-                      </td>
-                    ))}
+            <tfoot>
+              {table.getFooterGroups().map((footerGroup) => {
+                return (
+                  <tr>
+                    {footerGroup.headers.map((footer) => {
+                      return (
+                        <td>
+                          {footer.isPlaceholder
+                            ? null
+                            : flexRender(
+                                footer.column.columnDef.footer,
+                                footer.getContext()
+                              )}
+                        </td>
+                      );
+                    })}
                   </tr>
-                ))}
-              </tfoot>
-            )}
+                );
+              })}
+            </tfoot>
           </table>
-        )}
-      </Box>
-
-      <Box>
-        <TablePagination table={table} />
-      </Box>
+        </Box>
+        <Box>
+          <Pagination table={table} />
+        </Box>
+      </Flex>
     </Flex>
   );
 }

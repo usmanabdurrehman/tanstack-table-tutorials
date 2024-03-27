@@ -1,12 +1,9 @@
 import { Box, Flex, Image } from "@chakra-ui/react";
 import moment from "moment";
+import React from "react";
 import { User } from "../../types";
 
-interface RowDetailViewProps {
-  user: User;
-}
-
-export const RowDetailView = ({ user }: RowDetailViewProps) => {
+export default function RowDetailView({ user }: { user: User }) {
   return (
     <Flex height={150} gap={4} p={2}>
       <Box width={150}>
@@ -15,10 +12,10 @@ export const RowDetailView = ({ user }: RowDetailViewProps) => {
       <Flex width="50%" textAlign={"left"} alignItems="center">
         <Box>
           <p>Name: {user.name}</p>
-          <p>Email: {user.email}</p>
-          <p>DOB: {moment(user.birthDate).format("MM/DD/YYYY")}</p>
+          <p>Age : {user.age}</p>
+          <p>DOB: {moment(user.birthDate).format("DD/MM/YYYY")}</p>
         </Box>
       </Flex>
     </Flex>
   );
-};
+}

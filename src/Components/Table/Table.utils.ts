@@ -5,9 +5,7 @@ import { User } from "../../types";
 export const fuzzyFilter: FilterFn<User> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value);
 
-  addMeta({
-    itemRank,
-  });
+  addMeta({ itemRank });
 
   return itemRank.passed;
 };
